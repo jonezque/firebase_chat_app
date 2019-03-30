@@ -1,0 +1,7 @@
+<p>
+  chat works! {{channelId}}
+</p>
+
+<div *ngFor="let m of messages">from: {{m.from}} message: {{m.text}}</div>
+<input type="text" [(ngModel)]="msg" >
+<button (click)="send()">send</button>
