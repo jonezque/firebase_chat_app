@@ -1,1 +1,3 @@
-<div *ngFor="let u of users" (click)="goToChat(u.key)">{{u | json}}</div>
+<div *ngFor="let u of users; trackBy: track" (click)="goToChat(u.id)">
+  name: {{u.name}} userId: {{u.id}}
+</div>

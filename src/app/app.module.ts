@@ -3,9 +3,9 @@ import { NgModule } from '@angular/core';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { Route, RouterModule } from '@angular/router';
 
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
@@ -16,13 +16,7 @@ import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 
 
-const routes: Route[] = [
-  { path: '', redirectTo: 'list', pathMatch: 'full' },
-  { path: 'list', component: ChatListComponent },
-  { path: 'chat/:id', component: ChatComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'profile', component: ProfileComponent },
-];
+
 
 @NgModule({
   declarations: [AppComponent, ChatListComponent, ChatComponent, LoginComponent, ProfileComponent],
@@ -31,8 +25,9 @@ const routes: Route[] = [
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
+    AngularFirestoreModule,
     AngularFireAuthModule,
-    RouterModule.forRoot(routes),
+    AppRoutingModule,
     HttpClientModule,
     FormsModule,
   ],

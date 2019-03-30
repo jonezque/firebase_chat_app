@@ -1,0 +1,22 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	match /users/{userId} {
+      allow read: if request.auth.uid != null;
+      allow create: if !exists(/databases/$(database)/documents/users/$(request.auth.uid));
+      allow update: if request.auth.uid == userId
+    }
+
+    match /channels/{channels} {
+      allow read: if request.auth.uid in resource.data.users;
+      allow create: if true;
+
+      function getUsers() {
+          return get(/databases/$(database)/documents/channels/$(channels)).data.users
+      }
+
+      match /messages/{messageId} {
+      	allow read,create: if request.auth.uid in getUsers();
+      }
+    }
+  }
+}

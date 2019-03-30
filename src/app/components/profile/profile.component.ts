@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,11 +11,12 @@ export class ProfileComponent {
   name: string;
   age: string;
 
-  constructor(private router: Router, private db: AngularFireDatabase) { }
+  constructor(private router: Router, private db: AngularFirestore) { }
 
   async update() {
-    const path = `users/${localStorage.getItem('uid')}`;
-    await this.db.object(path).set({ name: this.name, age: this.age });
+    await this.db.collection('users')
+      .doc(localStorage.getItem('uid'))
+      .set({ name: this.name, age: this.age });
     this.router.navigate(['list']);
   }
 }

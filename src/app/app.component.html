@@ -1,5 +1,7 @@
 <!--The content below is only a placeholder and can be replaced.-->
 
+<button *ngIf="uid" (click)="logout()">logout</button>
 <div style="border: 1px solid grey">
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 </div>
+

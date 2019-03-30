@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -6,6 +8,25 @@ import { Component } from '@angular/core';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'chat-app-angular-firebase';
+  uid: string;
+
+  constructor(private auth: AngularFireAuth, private router: Router) { }
+
+  ngOnInit() {
+    this.auth.authState.subscribe(user => {
+      this.uid = user && user.uid;
+      if (this.uid) {
+        localStorage.setItem('uid', this.uid);
+      } else {
+        localStorage.removeItem('uid');
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  logout() {
+    this.auth.auth.signOut();
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 
@@ -7,15 +7,11 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   email: string;
   password: string;
 
   constructor(private auth: AngularFireAuth, private router: Router) { }
-
-  ngOnInit() {
-    this.auth.authState.subscribe(user => localStorage.setItem('uid', user && user.uid));
-  }
 
   async login() {
     await this.auth.auth.signOut();
@@ -26,6 +22,6 @@ export class LoginComponent implements OnInit {
   async create() {
     await this.auth.auth.signOut();
     await this.auth.auth.createUserWithEmailAndPassword(this.email, this.password);
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/list']);
   }
 }

@@ -1,11 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+
+
 
 export interface IUser {
-  key: string;
+  id: string;
   age: number;
   name: string;
+}
+
+export interface IChannel {
+  users: string[];
 }
 
 @Component({
@@ -13,41 +20,38 @@ export interface IUser {
   templateUrl: './chat-list.component.html',
   styleUrls: ['./chat-list.component.scss']
 })
-export class ChatListComponent implements OnInit {
+export class ChatListComponent implements OnInit, OnDestroy {
   uid = localStorage.getItem('uid');
   users: IUser[];
+  subscription: Subscription;
 
-  constructor(private db: AngularFireDatabase, private router: Router) {}
+  constructor(private router: Router, private db: AngularFirestore) {}
 
   ngOnInit() {
-    this.db.list<IUser>('users').snapshotChanges()
-      .subscribe(data => this.users = data.map(val => ({...val.payload.val(), key: val.key}))
-      .filter(val => val.key !== this.uid));
-    if (!this.uid) {
-      this.router.navigate(['login']);
-    }
+    this.subscription = this.db.collection<IUser>('users').snapshotChanges()
+      .subscribe(data => this.users = data
+        .filter(user => user.payload.doc.id !== this.uid)
+        .map(user => ({ id: user.payload.doc.id, ...user.payload.doc.data() })));
   }
 
-  goToChat(key: string) {
-    console.log(this.uid, key);
-    if (this.uid !== key) {
-      this.db.list<any>('channels').snapshotChanges().subscribe(chats => {
-        chats = chats.filter(chat => {
-          const users = chat.payload.val().users as string[];
-          if (users.includes(key) && users.includes(this.uid)) {
-            return true;
-          }
-          return false;
-        });
-        if (chats.length) {
-              this.router.navigate([`/chat/${chats[0].key}`]);
+  goToChat(id: string) {
+    this.db.collection<IChannel>('channels', ref => ref.where('users', 'array-contains', this.uid))
+      .get().subscribe(async (data) => {
+        const channel = data.docs.filter(chat => chat.data().users.includes(id));
+        if (channel.length) {
+          this.router.navigate([ `/chat/${channel[0].id}` ]);
         } else {
-          this.db.list<any>('channels').push({ users: [this.uid, key]})
-            .then(chat => {
-              this.router.navigate([`/chat/${chat.key}`]);
-            });
+          const chat = await this.db.collection<IChannel>('channels').add({ users: [id, this.uid] });
+          this.router.navigate([ `/chat/${chat.id}` ]);
         }
       });
-    }
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  track(_: number, user: IUser) {
+    return user.id;
   }
 }

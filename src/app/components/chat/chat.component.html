@@ -1,7 +1,7 @@
 <p>
-  chat works! {{channelId}}
+  channelId: {{channelId}}
 </p>
-
-<div *ngFor="let m of messages">from: {{m.from}} message: {{m.text}}</div>
+<button [routerLink]="['/list']" >back</button>
+<div *ngFor="let m of messages; trackBy: track">from: {{m.from}} message: {{m.text}}</div>
 <input type="text" [(ngModel)]="msg" >
 <button (click)="send()">send</button>
